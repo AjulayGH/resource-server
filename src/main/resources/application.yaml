@@ -1,1 +1,38 @@
-spring.application.name=resserver
+scheme: http
+hostname: civil-aviation.pro
+hostname-auth: auth.civil-aviation.pro
+reverse-proxy-port: 7080
+reverse-proxy-uri: ${scheme}://${hostname}:${reverse-proxy-port}
+reverse-proxy-auth-uri: ${scheme}://${hostname-auth}:${reverse-proxy-port}
+authorization-server-prefix: /auth
+issuer: ${reverse-proxy-auth-uri}${authorization-server-prefix}
+client-id: baeldung-confidential
+client-secret: secret
+username-claim-json-path: $.preferred_username
+authorities-json-path: $.realm_access.roles
+resource-server-port: 7084
+audience:
+
+server:
+  port: ${resource-server-port}
+
+com:
+  c4-soft:
+    springaddons:
+      oidc:
+        ops:
+          - iss: ${issuer}
+            username-claim: ${username-claim-json-path}
+            authorities:
+              - path: ${authorities-json-path}
+            aud: ${audience}
+        resourceserver:
+          permit-all:
+            - /me
+
+
+spring:
+  application:
+    name: resserver
+
+
